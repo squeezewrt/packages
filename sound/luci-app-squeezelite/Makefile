@@ -22,7 +22,7 @@ define Package/$(PKG_NAME)
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=Squeezelite Web UI
-  DEPENDS:=+luci-mod-admin-full +squeezelite
+  DEPENDS:=+luci-mod-admin-full @(PACKAGE_squeezelite-full||PACKAGE_squeezelite-mini)
 endef
 
 define Package/$(PKG_NAME)/description
