@@ -1,3 +1,11 @@
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+--
+-- -I - network interface
+-- Check 4 Resample
+-- Check 4 DSD
+--
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 require("luci.tools.webadmin")
 
 --------------------------------------------------------------------------------------
@@ -128,18 +136,12 @@ ppr.datatype = "range(0,99)"
 ppr.default = 0
 ppr.optional = false
 
-local sbe = s:taboption("player", Flag, "specific_bufsiz", "Set Buffer sizes", "Specify internal Stream and Output buffer sizes in Kbytes. When not checked use default")
-sbe.default = 0
-sbe.optional = false
-
 local sbs = s:taboption("player", Value, "stream_bufsiz", "Stream buffer", "When 'Set Buffer sizes' checked, specify internal Stream buffer size in Kbytes")
-sbs:depends("specific_bufsiz", 1);
 sbs.datatype = "range(128,16384)"
 sbs.default = 2048
 sbs.optional = false
 
 local sbo = s:taboption("player", Value, "out_bufsiz", "Output buffer", "When 'Set Buffer sizes' checked, specify internal Output buffer size in Kbytes")
-sbo:depends("specific_bufsiz", 1);
 sbo.datatype = "range(128,16384)"
 sbo.default = 3763
 sbo.optional = false
@@ -148,24 +150,17 @@ sbo.optional = false
 
 s:tab("alsa", "ALSA")
 
-local ape = s:taboption("alsa", Flag, "specific_devopen", "Device open params", "Specify ALSA parameters to open output device. When not checked use default")
-ape.default = 0
-ape.optional = false
-
 local apb = s:taboption("alsa", Value, "alsa_buffer", "ALSA buffer", "When 'Device open params' checked, ALSA buffer time in ms or size in bytes, 0 to default value");
-apb:depends("specific_devopen", 1);
 apb.datatype = "uinteger"
 apb.default = 200
 apb.optional = false
 
 local app = s:taboption("alsa", Value, "alsa_period", "ALSA period", "When 'Device open params' checked, ALSA period count or size in bytes, 0 to default value");
-app:depends("specific_devopen", 1);
 app.datatype = "uinteger"
 app.default = 0
 app.optional = false
 
 local apf = s:taboption("alsa", ListValue, "alsa_format", "ALSA sample format", "When 'Device open params' checked, ALSA audio sample format");
-apf:depends("specific_devopen", 1);
 apf.default = "0"
 apf.optional = false
 apf:value("0","Default")
@@ -175,7 +170,6 @@ apf:value("24_3","24/3 bit")
 apf:value("32","32 bit")
 
 local apm = s:taboption("alsa", Flag, "alsa_mmap", "ALSA use mmap", "When 'Device open params' checked, ALSA use mmap");
-apm:depends("specific_devopen", 1);
 apm.default = 1
 apm.optional = false
 
@@ -195,7 +189,7 @@ if mad ~= nil then
     mad.default = 0
 end
 
-local ogg = FlagIfFileExists("codec", s, "ls /usr/lib/libogg.*", "decode_ogg", "OGG in player", "OGG decoding takes place in player, not in server", "No libogg found");
+local ogg = FlagIfFileExists("codec", s, "ls /usr/lib/libvorbisidec.*", "decode_ogg", "OGG in player", "OGG decoding takes place in player, not in server", "No libvorbisidec found");
 if ogg ~= nil then
     ogg.optional = false
     ogg.default = 0
@@ -207,7 +201,7 @@ if faad ~= nil then
     faad.default = 0
 end
 
-local wma = FlagIfFileExists("codec", s, "ls /usr/lib/libavformat.*", "decode_wma_alac", "WMA and ALAC in player", "WMA and ALAC decoding takes place in player, not in server", "No libavformat found");
+local wma = FlagIfFileExists("codec", s, "ls /usr/lib/libavcodec.*", "decode_wma_alac", "WMA and ALAC in player", "WMA and ALAC decoding takes place in player, not in server", "No libavcodec found");
 if wma ~= nil then
     wma.optional = false
     wma.default = 0
@@ -216,66 +210,6 @@ end
 local dop = s:taboption("codec", Flag, "dsd_over_pcm", "DSD over PCM", "Output device supports DSD over PCM (DoP)");
 dop.optional = false
 dop.default = 0
-
---------------------------------------------------------------------------------------
-
-s:tab("remote", "Remote control")
-
-local ir = FlagIfFileExists("remote", s, "ls /etc/init.d/lircd", "ircontrol", "Use LIRC", "Enable LIRC remote control support", "No LIRC daemon found")
-if ir ~= nil then
-    ir.optional = false
-    ir.default = 1
-end
-
-local irc = s:taboption("remote", Value, "lirc_voldown", "Vol -", "Volume down command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_VOLUMEDOWN"
-
-local irc = s:taboption("remote", Value, "lirc_volup", "Vol +", "Volume up command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_VOLUMEUP"
-
-local irc = s:taboption("remote", Value, "lirc_rew", "Prev", "Previous track command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_PREVIOUSSONG"
-
-local irc = s:taboption("remote", Value, "lirc_fwd", "Next", "Next track command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_NEXTSONG"
-
-local irc = s:taboption("remote", Value, "lirc_pause", "Pause", "Pause playback command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_PLAYPAUSE"
-
-local irc = s:taboption("remote", Value, "lirc_play", "Play", "Start playback command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_PLAY"
-
-local irc = s:taboption("remote", Value, "lirc_power", "Power", "Power toggle command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_POWER"
-
-local irc = s:taboption("remote", Value, "lirc_muting", "Mute", "Mute / unmute playback command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_MUTE"
-
-local irc = s:taboption("remote", Value, "lirc_power_on", "Power On", "Power on command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_POWER"
-
-local irc = s:taboption("remote", Value, "lirc_power_off", "Power Off", "Power off command")
-irc:depends("ircontrol", 1)
-irc.optional = false
-irc.default = "KEY_POWER"
 
 --------------------------------------------------------------------------------------
 
