@@ -189,7 +189,7 @@ if mad ~= nil then
     mad.default = 0
 end
 
-local ogg = FlagIfFileExists("codec", s, "ls /usr/lib/libvorbisidec.*", "decode_ogg", "OGG in player", "OGG decoding takes place in player, not in server", "No libvorbisidec found");
+local ogg = FlagIfFileExists("codec", s, "ls /usr/lib/libvorbis*.*", "decode_ogg", "OGG in player", "OGG decoding takes place in player, not in server", "No libvorbisidec found");
 if ogg ~= nil then
     ogg.optional = false
     ogg.default = 0
